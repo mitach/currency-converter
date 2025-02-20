@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const currency_controller_1 = require("../controllers/currency.controller");
+const currencyRouter = (0, express_1.Router)();
+currencyRouter.get('/', currency_controller_1.getCurrencies);
+currencyRouter.get('/available', currency_controller_1.getAvailableCurrencies);
+currencyRouter.post('/', currency_controller_1.createCurrency);
+currencyRouter.post('/convert', currency_controller_1.convertCurrency);
+exports.default = currencyRouter;
