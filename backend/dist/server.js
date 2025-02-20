@@ -23,14 +23,11 @@ const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5500;
 app.use((0, cors_1.default)({
     origin: [
-        'http://localhost:3000',
-        'https://your-netlify-app.netlify.app' // You'll add this after deploying to Netlify
+        'http://localhost:5173',
+        'https://famous-chaja-81bb8b.netlify.app/'
     ]
 }));
 app.use(express_1.default.json());
-app.get("/", (req, res) => {
-    res.send("Hello, TypeScript Express!");
-});
 app.use('/api/v1/currencies', currency_routes_1.default);
 app.use(error_middleware_1.default);
 app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
