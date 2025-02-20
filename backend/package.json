@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --ext ts --exec ts-node src/server.ts",
-    "build": "tsc",
     "start": "node dist/server.js",
-    "postinstall": "npm run build"
+    "build": "npx tsc",
+    "postinstall": "npx tsc",
+    "dev": "nodemon src/server.ts"
   },
   "keywords": [],
   "author": "",
