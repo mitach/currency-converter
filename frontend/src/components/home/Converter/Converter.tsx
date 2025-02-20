@@ -4,6 +4,7 @@ import './Converter.css';
 import { Currency } from '../../../types/types';
 import { useCurrency } from '../../../context/CurrencyContext';
 
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Converter: React.FC = () => {
     const {
@@ -24,7 +25,7 @@ const Converter: React.FC = () => {
 
     const fetchCurrencies = async () => {
         try {
-            const response = await fetch(`http://localhost:5500/api/v1/currencies?codes=${selectedCurrencies.join(',')}`);
+            const response = await fetch(`${API_URL}/currencies?codes=${selectedCurrencies.join(',')}`);
             const data = await response.json();
 
             setCurrencies(data.data);
@@ -35,7 +36,7 @@ const Converter: React.FC = () => {
 
     const fetchAvailableCurrencies = async () => {
         try {
-            const response = await fetch('http://localhost:5500/api/v1/currencies/available');
+            const response = await fetch(`${API_URL}/currencies/available`);
             const data = await response.json();
             if (data.success) {
                 setAvailableCurrencies(data.data);
@@ -65,7 +66,7 @@ const Converter: React.FC = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5500/api/v1/currencies/convert', {
+            const response = await fetch(`${API_URL}/currencies/convert`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -102,7 +103,7 @@ const Converter: React.FC = () => {
             const usdValue = currencies.find(c => c.code === 'USD')?.rate;
 
             if (usdValue && !isNaN(Number(usdValue))) {
-                const response = await fetch('http://localhost:5500/api/v1/currencies/convert', {
+                const response = await fetch(`${API_URL}/currencies/convert`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -123,7 +124,7 @@ const Converter: React.FC = () => {
                     }]);
                 }
             } else {
-                const response = await fetch(`http://localhost:5500/api/v1/currencies?codes=${currencyCode}`);
+                const response = await fetch(`${API_URL}/currencies?codes=${currencyCode}`);
                 const data = await response.json();
 
                 if (data.success && data.data.length > 0) {

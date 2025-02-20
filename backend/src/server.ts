@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import dotenv from 'dotenv';
 import cors from 'cors';
 
@@ -14,15 +14,11 @@ const PORT = process.env.PORT || 5500;
 
 app.use(cors({
   origin: [
-    'http://localhost:3000',
-    'https://your-netlify-app.netlify.app'  // You'll add this after deploying to Netlify
+    'http://localhost:5173',
+    'https://famous-chaja-81bb8b.netlify.app/'
   ]
 }));
 app.use(express.json());
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello, TypeScript Express!");
-});
 
 app.use('/api/v1/currencies', currencyRouter);
 

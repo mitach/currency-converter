@@ -11,6 +11,8 @@ interface Currency {
 type SortType = 'name' | 'rate';
 type SortDirection = 'asc' | 'desc';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const AllCurrencies: FC = () => {
     const [currencies, setCurrencies] = useState<Currency[]>([]);
     const [sortType, setSortType] = useState<SortType>('name');
@@ -22,7 +24,7 @@ const AllCurrencies: FC = () => {
 
     const fetchAllCurrencies = async () => {
         try {
-            const response = await fetch('http://localhost:5500/api/v1/currencies');
+            const response = await fetch(`${API_URL}/currencies`);
             const data = await response.json();
             console.log(data)
             if (data.success) {
@@ -58,7 +60,7 @@ const AllCurrencies: FC = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5500/api/v1/currencies/convert', {
+            const response = await fetch(`${API_URL}/currencies/convert`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
