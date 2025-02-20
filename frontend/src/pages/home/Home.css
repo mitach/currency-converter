@@ -1,0 +1,14 @@
+.home-page {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 6rem;
+	max-width: 100%;
+	padding: 2rem;
+}
+
+@media (max-width: 1024px) {
+	.home-page {
+		grid-template-columns: 1fr;
+		padding: 1rem;
+	}
+}

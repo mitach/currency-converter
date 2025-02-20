@@ -1,0 +1,164 @@
+:root {
+	--primary: #6366f1;
+	--primary-dark: #4f46e5;
+	--secondary: #0ea5e9;
+	--background: #f8fafc;
+	--surface: #ffffff;
+	--text: #1e293b;
+	--text-light: #64748b;
+	--error: #ef4444;
+	--success: #22c55e;
+}
+
+.app-container {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--background);
+	color: var(--text);
+}
+
+.header {
+	background-color: var(--surface);
+	padding: 1rem 2rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.header h1 {
+	margin: 0;
+	font-size: 1.2rem;
+	color: var(--primary);
+}
+
+.header nav ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	gap: 2rem;
+}
+
+.header nav a {
+	color: var(--text-light);
+	font-weight: 500;
+	text-decoration: none;
+	transition: all 0.3s ease;
+	padding: 0.5rem 1rem;
+	border-radius: 0.4rem;
+}
+
+.header nav a:hover {
+	color: var(--primary);
+	background-color: rgba(99, 102, 241, 0.1);
+}
+
+.footer {
+	background-color: var(--surface);
+	color: var(--text-light);
+	padding: 0 1rem;
+	margin-top: auto;
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.burger-menu {
+	display: none;
+	flex-direction: column;
+	justify-content: space-around;
+	width: 2rem;
+	height: 2rem;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	z-index: 10;
+}
+
+.burger-menu span {
+	width: 2rem;
+	height: 0.25rem;
+	background: var(--primary);
+	border-radius: 10px;
+	transition: all 0.3s linear;
+}
+
+@media (max-width: 768px) {
+	.header {
+		padding: 1rem;
+	}
+
+	.header nav ul {
+		gap: 0.5rem;
+	}
+
+	.header nav a {
+		padding: 0.4rem 0.8rem;
+		font-size: 0.9rem;
+	}
+
+	.burger-menu {
+		display: flex;
+	}
+
+	.nav-menu {
+		position: fixed;
+		top: 0;
+		right: -100%;
+		width: 70%;
+		height: 100vh;
+		background-color: var(--surface);
+		padding: 4rem 2rem;
+		transition: 0.3s ease-in-out;
+		box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+	}
+
+	.nav-menu.open {
+		right: 0;
+	}
+
+	.header nav ul {
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.header nav a {
+		display: block;
+		font-size: 1.1rem;
+	}
+
+	.converter-container {
+		padding: 0.2rem;
+	}
+}
+
+@media (orientation: landscape) and (max-height: 768px) {
+	.header {
+		padding: 0.75rem 2rem;
+	}
+
+	.header h1 {
+		font-size: 1.4rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.main-content {
+		height: calc(100vh - 120px);
+		overflow-y: auto;
+	}
+
+
+}
+
+@media (max-width: 504px) {
+	.main-content .converter-container {
+		padding: 0.8rem;
+	}
+}
+
+@media (max-width: 403px) {
+	.main-content .converter-container {
+		padding: 0.4rem;
+	}
+}
