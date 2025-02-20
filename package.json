@@ -6,6 +6,6 @@
   },
   "scripts": {
     "start": "cd backend && node dist/server.js",
-    "heroku-postbuild": "cd backend && npm install && npx tsc"
+    "heroku-postbuild": "cd backend && npm install typescript && npm install && npx tsc"
   }
 } 
