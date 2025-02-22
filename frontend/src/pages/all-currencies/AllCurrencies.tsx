@@ -1,12 +1,8 @@
 import { FC, useState, useEffect } from 'react';
 import './AllCurrencies.css';
-
-interface Currency {
-    code: string;
-    name: string;
-    rate: string;
-    rate_usd: number;
-}
+import { useConversion } from '../../hooks/useConversion';
+import '../../styles/shared.css';
+import { Currency } from '../../types/types';
 
 type SortType = 'name' | 'rate';
 type SortDirection = 'asc' | 'desc';
@@ -17,6 +13,8 @@ const AllCurrencies: FC = () => {
     const [currencies, setCurrencies] = useState<Currency[]>([]);
     const [sortType, setSortType] = useState<SortType>('name');
     const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+    const { isConverting, convertCurrency } = useConversion();
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         fetchAllCurrencies();
@@ -36,59 +34,15 @@ const AllCurrencies: FC = () => {
             }
         } catch (error) {
             console.error('Error fetching currencies:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const handleAmountChange = async (value: string, fromCurrency: string) => {
-        // Immediately update the changed input
-        setCurrencies(currencies.map(curr => ({
-            ...curr,
-            rate: curr.code === fromCurrency ? value : curr.rate
-        })));
+    const handleAmountChange = (value: string, fromCurrency: string) => {
+        convertCurrency(value, fromCurrency, currencies, setCurrencies);
 
-        if (value === '') {
-            setCurrencies(currencies.map(curr => ({
-                ...curr,
-                rate: ''
-            })));
-            return;
-        }
-
-        const numValue = Number(value);
-        if (isNaN(numValue)) {
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_URL}/currencies/convert`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    amount: numValue,
-                    fromCurrency,
-                    currencies: currencies.map(c => c.code)
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                setCurrencies(currencies.map(curr => {
-                    if (curr.code === fromCurrency) {
-                        return { ...curr, rate: value };
-                    }
-                    const conversion = data.data.find((c: any) => c.code === curr.code);
-                    return {
-                        ...curr,
-                        rate: conversion ? conversion.amount.toString() : curr.rate
-                    };
-                }));
-            }
-        } catch (error) {
-            console.error('Error converting currencies:', error);
-        }
+        console.warn(currencies)
     };
 
     const sortCurrencies = () => {
@@ -137,29 +91,39 @@ const AllCurrencies: FC = () => {
             </article>
 
             <article className="rates-grid">
-                {sortCurrencies().map((currency) => (
-                    <div key={currency.code} className="currency-card-wrapper">
-                        <div className="currency-card">
-                            <div className="currency-header">
-                                <img
-                                    src={`https://flagcdn.com/${currency.code.slice(0, 2).toLowerCase()}.svg`}
-                                    alt={`${currency.code} flag`}
-                                    className="currency-flag"
-                                />
-                                <span className="currency-code">{currency.code}</span>
-                            </div>
-                            <div className="currency-name">{currency.name}</div>
-                            <input
-                                type="number"
-                                value={currency.rate ? Number(Number(currency.rate).toFixed(4)) : ''}
-                                onChange={(e) => handleAmountChange(e.target.value, currency.code)}
-                                placeholder="0.00"
-                                className="currency-input"
-                            />
-                        </div>
+                {isLoading ? (
+                    <div className="initial-loading">
+                        <div className="spinner"></div>
+                        <p>Loading currencies...</p>
                     </div>
-
-                ))}
+                ) : (
+                    sortCurrencies().map((currency) => (
+                        <div key={currency.code} className="currency-card-wrapper">
+                            <div className="currency-card">
+                                <div className="currency-header">
+                                    <img
+                                        src={`https://flagcdn.com/${currency.code.slice(0, 2).toLowerCase()}.svg`}
+                                        alt={`${currency.code} flag`}
+                                        className="currency-flag"
+                                    />
+                                    <span className="currency-code">{currency.code}</span>
+                                </div>
+                                <div className="currency-name">{currency.name}</div>
+                                <div className="currency-input-wrapper">
+                                    <input
+                                        type="number"
+                                        value={currency.rate ? Number(Number(currency.rate).toFixed(4)) : ''}
+                                        onChange={(e) => handleAmountChange(e.target.value, currency.code)}
+                                        placeholder="0.00"
+                                        className="currency-input"
+                                        disabled={isConverting}
+                                    />
+                                    {isConverting && <div className="input-spinner"></div>}
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
             </article>
         </section>
     );

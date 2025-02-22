@@ -3,6 +3,7 @@ export interface Currency {
   name: string;
   symbol: string;
   rate: number | string;
+  amount?: string;
 }
 
 export interface ConversionState {

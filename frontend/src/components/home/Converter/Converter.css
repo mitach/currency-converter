@@ -159,3 +159,30 @@
 		min-width: auto;
 	}
 }
+
+.input-spinner {
+	position: absolute;
+	right: 80px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 20px;
+	height: 20px;
+	border: 2px solid var(--background);
+	border-top: 2px solid var(--primary);
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% { transform: translateY(-50%) rotate(0deg); }
+	100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+input:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
+
+.currency-input-group button {
+	z-index: 2;
+}

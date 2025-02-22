@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import './Converter.css';
 import { Currency } from '../../../types/types';
 import { useCurrency } from '../../../context/CurrencyContext';
+import { useConversion } from '../../../hooks/useConversion';
+import '../../../styles/shared.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -14,7 +16,10 @@ const Converter: React.FC = () => {
         setSelectedCurrencies
     } = useCurrency();
 
+    const { isConverting, convertCurrency } = useConversion();
+
     const [availableCurrencies, setAvailableCurrencies] = useState<{ code: string; name: string }[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (currencies.length === 0) {
@@ -31,7 +36,10 @@ const Converter: React.FC = () => {
             setCurrencies(data.data);
         } catch (error) {
             console.error('Error fetching currencies:', error);
+        } finally {
+            setIsLoading(false);
         }
+
     };
 
     const fetchAvailableCurrencies = async () => {
@@ -43,55 +51,13 @@ const Converter: React.FC = () => {
             }
         } catch (error) {
             console.error('Error fetching available currencies:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const handleAmountChange = async (value: string, fromCurrency: string) => {
-        setCurrencies(currencies.map(curr => ({
-            ...curr,
-            rate: curr.code === fromCurrency ? value : curr.rate
-        })));
-
-        if (value === '') {
-            setCurrencies(currencies.map(curr => ({
-                ...curr,
-                rate: ''
-            })));
-            return;
-        }
-
-        const numValue = Number(value);
-        if (isNaN(numValue)) {
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_URL}/currencies/convert`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    amount: numValue,
-                    fromCurrency,
-                    currencies: selectedCurrencies
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                setCurrencies(currencies.map(curr => {
-                    const conversion = data.data.find((c: any) => c.code === curr.code);
-                    return {
-                        ...curr,
-                        rate: conversion ? conversion.amount.toString() : curr.rate
-                    };
-                }));
-            }
-        } catch (error) {
-            console.error('Error converting currencies:', error);
-        }
+    const handleAmountChange = (value: string, fromCurrency: string) => {
+        convertCurrency(value, fromCurrency, currencies, setCurrencies);
     };
 
     const addCurrency = async (currencyCode: string) => {
@@ -146,38 +112,47 @@ const Converter: React.FC = () => {
 
     return (
         <div className="converter-container">
-            <div className="currency-inputs">
-                {currencies.map((currency) => (
-                    <div key={currency.code} className="currency-input-group">
-                        <div className="currency-input-group-inner">
-                            <label>
-                                <img
-                                    src={`https://flagcdn.com/${currency.code.slice(0, 2).toLowerCase()}.svg`}
-                                    alt={`${currency.code} flag`}
-                                    className="converter-currency-flag"
-                                />
-                                {currency.code}
-                            </label>
-                            <div className="input-with-button">
-                                <input
-                                    type="number"
-                                    value={(currency.rate ? Number(Number(currency.rate).toFixed(4)) : '')}
-                                    onChange={(e) => handleAmountChange(e.target.value, currency.code)}
-                                    placeholder="0.00"
-                                />
-                                {currency.code !== 'USD' && (
-                                    <button
-                                        className="remove-currency"
-                                        onClick={() => removeCurrency(currency.code)}
-                                    >
-                                        ×
-                                    </button>
-                                )}
+            {isLoading ? (
+                <div className="initial-loading">
+                    <div className="spinner"></div>
+                    <p>Loading currencies...</p>
+                </div>
+            ) : (
+                <div className="currency-inputs">
+                    {currencies.map((currency) => (
+                        <div key={currency.code} className="currency-input-group">
+                            <div className="currency-input-group-inner">
+                                <label>
+                                    <img
+                                        src={`https://flagcdn.com/${currency.code.slice(0, 2).toLowerCase()}.svg`}
+                                        alt={`${currency.code} flag`}
+                                        className="converter-currency-flag"
+                                    />
+                                    {currency.code}
+                                </label>
+                                <div className="input-with-button">
+                                    <input
+                                        type="number"
+                                        value={(currency.rate ? Number(Number(currency.rate).toFixed(4)) : '')}
+                                        onChange={(e) => handleAmountChange(e.target.value, currency.code)}
+                                        placeholder="0.00"
+                                        disabled={isConverting}
+                                    />
+                                    {isConverting && <div className="input-spinner"></div>}
+                                    {currency.code !== 'USD' && (
+                                        <button
+                                            className="remove-currency"
+                                            onClick={() => removeCurrency(currency.code)}
+                                        >
+                                            ×
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
 
             <div className="add-currency-section">
                 <select
