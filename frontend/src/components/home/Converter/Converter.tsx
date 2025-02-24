@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import './Converter.css';
 import { Currency } from '../../../types/types';
@@ -20,6 +20,7 @@ const Converter: React.FC = () => {
 
     const [availableCurrencies, setAvailableCurrencies] = useState<{ code: string; name: string }[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
     useEffect(() => {
         if (currencies.length === 0) {
@@ -57,8 +58,28 @@ const Converter: React.FC = () => {
     };
 
     const handleAmountChange = (value: string, fromCurrency: string) => {
-        convertCurrency(value, fromCurrency, currencies, setCurrencies);
+        setCurrencies(currencies.map(curr => ({
+            ...curr,
+            amount: curr.code === fromCurrency ? value : curr.amount,
+            rate: curr.code === fromCurrency ? value : curr.rate
+        })));
+
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            convertCurrency(value, fromCurrency, currencies, setCurrencies);
+        }, 750);
     };
+
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     const addCurrency = async (currencyCode: string) => {
         if (!currencyCode || selectedCurrencies.includes(currencyCode)) {

@@ -1,20 +1,21 @@
-import { FC, useState, useEffect } from 'react';
-import './AllCurrencies.css';
+import { useState, useEffect, useRef } from 'react';
 import { useConversion } from '../../hooks/useConversion';
-import '../../styles/shared.css';
 import { Currency } from '../../types/types';
+import './AllCurrencies.css';
+import '../../styles/shared.css';
 
 type SortType = 'name' | 'rate';
 type SortDirection = 'asc' | 'desc';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const AllCurrencies: FC = () => {
+const AllCurrencies: React.FC = () => {
     const [currencies, setCurrencies] = useState<Currency[]>([]);
     const [sortType, setSortType] = useState<SortType>('name');
     const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
     const { isConverting, convertCurrency } = useConversion();
     const [isLoading, setIsLoading] = useState(true);
+    const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
     useEffect(() => {
         fetchAllCurrencies();
@@ -24,9 +25,8 @@ const AllCurrencies: FC = () => {
         try {
             const response = await fetch(`${API_URL}/currencies`);
             const data = await response.json();
-            console.log(data)
+
             if (data.success) {
-                // Set currencies with their rates from the database
                 setCurrencies(data.data.map((curr: Currency) => ({
                     ...curr,
                     rate: curr.code === 'USD' ? '1' : curr.rate.toString()
@@ -40,10 +40,28 @@ const AllCurrencies: FC = () => {
     };
 
     const handleAmountChange = (value: string, fromCurrency: string) => {
-        convertCurrency(value, fromCurrency, currencies, setCurrencies);
+        setCurrencies(currencies.map(curr => ({
+            ...curr,
+            amount: curr.code === fromCurrency ? value : curr.amount,
+            rate: curr.code === fromCurrency ? value : curr.rate
+        })));
 
-        console.warn(currencies)
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            convertCurrency(value, fromCurrency, currencies, setCurrencies);
+        }, 750);
     };
+
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     const sortCurrencies = () => {
         return [...currencies].sort((a, b) => {

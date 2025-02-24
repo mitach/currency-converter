@@ -41,7 +41,6 @@ export const useConversion = () => {
 
             const data = await response.json();
 
-            console.error(data)
             if (data.success) {
                 setCurrencies(currencies.map(curr => {
                     if (curr.code === fromCurrency) {
